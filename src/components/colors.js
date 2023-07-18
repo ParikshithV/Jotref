@@ -1,0 +1,17 @@
+export const hex = {
+    background: '#FFFFF0',
+    background2: '#F0FFF7',
+    background3: '#F0F0FF',
+    background4: '#FFF0F7',
+    buttonBg: '#b3cbe4',
+    buttonBg2: '#fee7ee',
+    buttonBg3: '#a9c6e2',
+    greyWhite: '#eaeaea',
+    lightPink: '#fee7ee',
+    green: '#96c771',
+    red: '#db1f1f',
+    blue: '#4bb3fd',
+    black: '#0a0a0b',
+    nineSix: '#969696',
+    sixtyNine: '#696969',
+}
