@@ -33,7 +33,7 @@ const CreateLilist = ({ updateLists }) => {
         setListPoints(temp);
     };
 
-    const validateList = () => {
+    const validateList = (isDraft) => {
         const minChar = 10;
         const isComplete = (
             listTitle.length >= 10 &&
@@ -43,7 +43,7 @@ const CreateLilist = ({ updateLists }) => {
         )
 
         if (isComplete) {
-            storeData();
+            storeData(isDraft);
         } else {
             const validationMsg = (
                 listPoints.length === 0 ? 'Please add at least one point to the list' :
@@ -58,11 +58,12 @@ const CreateLilist = ({ updateLists }) => {
         }
     }
 
-    const storeData = async () => {
+    const storeData = async (isDraft) => {
         const list = {
             title: listTitle,
             description: listDescription,
             points: listPoints,
+            isDraft: isDraft,
         };
 
         const updating = await updateLists(list);
@@ -100,6 +101,7 @@ const CreateLilist = ({ updateLists }) => {
                 {listPoints.map((listPoint, index) => {
                     return (
                         <PointsInputRow
+                            key={index}
                             value={listPoint} index={index}
                             updatePointText={updatePointText}
                             removePoint={removePoint}
@@ -138,10 +140,10 @@ const CreateLilist = ({ updateLists }) => {
                             Publish List  ✔
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity disabled
+                    <TouchableOpacity
+                        onPress={() => validateList(true)}
                         style={[styles.actionButtons, {
                             backgroundColor: hex.background3,
-                            opacity: 0.5,
                         }]}>
                         <Text style={styles.actionButtonsText}>
                             Save as draft  📁

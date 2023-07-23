@@ -1,17 +1,19 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { StyleSheet, View, Text, FlatList, ActivityIndicator } from "react-native";
 import { hex } from "../colors";
 import ListCard from "./ListCard";
 import env from "react-dotenv";
 import axios from "axios";
 import Footer from "../HeaderFooter/Footer";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 const ListingAllLists = forwardRef((props, ref) => {
-    const { userObj, ListHeader } = props;
+    const { userObj, ListHeader, draftedLists } = props;
 
     const [allLists, setAllLists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const canLoadMore = useRef(true);
 
     useImperativeHandle(ref, () => ({
         updateLists: () => {
@@ -19,25 +21,41 @@ const ListingAllLists = forwardRef((props, ref) => {
         }
     }));
 
-    useFocusEffect(
-        useCallback(() => {
-            console.log("ListingAllLists.js: useEffect", userObj);
-            getAllPosts(userObj?.token);
-        }, [userObj])
-    );
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         userObj && getAllPosts(userObj?._id);
+    //     }, [userObj])
+    // );
 
-    // useEffect(() => {
-    //     console.log("ListingAllLists.js: useEffect", userObj);
-    //     getAllPosts(userObj?.token);
-    // }, [userObj]);
+    const isFocused = useIsFocused();
 
-    const getAllPosts = (userId) => {
-        const apiPath = userId ? `/getuserlist?id=${userId}` : "/getall";
-        axios.get(`${env.API_URL}${apiPath}`)
+    useEffect(() => {
+        if (isFocused) {
+            getAllPosts();
+        }
+    }, [userObj, isFocused]);
+
+    const getAllPosts = (loadMore, refresh) => {
+        refresh && setIsLoading(2);
+        const userId = userObj?._id;
+        console.log('draftedLists', draftedLists)
+        const apiPath = userId ? `/getuserlist` : "/getall";
+        axios.get(`${env.API_URL}${apiPath}`,
+            {
+                params: {
+                    userId: userId, isDraft: !!draftedLists,
+                    offset: loadMore ? allLists.length : 0,
+                    limit: 5,
+                }
+            }
+
+        )
             .then(res => {
-                const reversedLists = res.data.reverse();
-                setAllLists(reversedLists);
+                const listRes = res.data;
+                const listArr = loadMore ? [...allLists, ...listRes] : listRes;
+                setAllLists(listArr);
                 setIsLoading(false);
+                canLoadMore.current = listRes.length > 4;
             })
             .catch(err => {
                 console.log(err);
@@ -47,16 +65,20 @@ const ListingAllLists = forwardRef((props, ref) => {
 
     const Placeholder = () => {
         return (
-            isLoading ?
-                <ActivityIndicator style={{ marginVertical: 50 }}
-                    size="small" color={hex.black} /> :
-                <View style={[styles.headerView, {
-                    marginTop: 15,
-                }]}>
-                    <Text style={styles.listTitle}>No lists published yet.</Text>
-                    <View style={styles.seperatorLine} />
-                    <Text style={styles.listSubTitle}>Publish your first list here now!</Text>
-                </View>
+            <View>
+                {isLoading ?
+                    <ActivityIndicator style={{ marginVertical: 50 }}
+                        size="small" color={hex.black} /> :
+                    allLists.length === 0 ?
+                        <View style={[styles.headerView, {
+                            marginTop: 15,
+                        }]}>
+                            <Text style={styles.listTitle}>No lists published yet.</Text>
+                            <View style={styles.seperatorLine} />
+                            <Text style={styles.listSubTitle}>Publish your first list here now!</Text>
+                        </View> : null}
+                <Footer />
+            </View>
         )
     }
 
@@ -71,13 +93,14 @@ const ListingAllLists = forwardRef((props, ref) => {
                     <ListCard
                         item={{ ...item, userObj: userObj }}
                         index={index}
-                        updateLists={() => getAllPosts(userObj?.token)}
+                        updateLists={() => getAllPosts(userObj?._id)}
                     />)}
                 keyExtractor={(item, index) => index.toString()}
-                ListEmptyComponent={<Placeholder />}
+                ListFooterComponent={<Placeholder />}
                 ListHeaderComponent={ListHeader || null}
                 showsHorizontalScrollIndicator={false}
-                ListFooterComponent={Footer}
+                onEndReached={() => canLoadMore.current && getAllPosts(userObj?._id, true)}
+                onEndReachedThreshold={1}
             />
         </View>
     );
