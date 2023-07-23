@@ -8,10 +8,13 @@ import env from "react-dotenv";
 import HeaderBar from "../components/HeaderFooter/Header";
 import SourroundingContainer from "../components/common/SourroundingContainer";
 import { useNavigation } from "@react-navigation/native";
+import PopupModal from "../components/common/PopupModal";
+import { ConfCheck } from "../AllSvg";
 
 const HomeScroll = () => {
     const [tempDb, setTempDb] = useState({});
     const [user, setUser] = useState(null);
+    const [addDoneMsg, setDeleteDoneMsg] = useState(false);
 
     const listingRef = createRef();
     const headerRef = createRef();
@@ -20,15 +23,38 @@ const HomeScroll = () => {
 
     const updateLists = (list, userIdParam) => {
         let temp = list || tempDb;
-        const userId = user?.token || userIdParam;
+        const userId = user?._id || userIdParam;
         const payload = { ...temp, userId: userId };
         console.log(payload);
         axios.post(`${env.API_URL}/post`, payload)
             .then(res => {
                 console.log(res);
                 refreshListing();
+                setDeleteDoneMsg(true);
+                setTimeout(() => {
+                    setDeleteDoneMsg(false);
+                }, 2000);
             })
             .catch(err => console.log(err));
+    }
+
+    const ConfPopup = () => {
+        return (
+            <PopupModal
+                modalVisible={addDoneMsg}
+                setModalVisible={setDeleteDoneMsg}
+            >
+                <ConfCheck
+                    height={75}
+                    width={75}
+                    color={hex.green}
+                />
+                <Text style={[styles.modalTxt, {
+                    marginBottom: 75, marginTop: 15,
+                }]}>
+                    List added successfully!
+                </Text>
+            </PopupModal>)
     }
 
     const refreshListing = () => {
@@ -47,7 +73,7 @@ const HomeScroll = () => {
 
     }
 
-    const checkAndPost = (list) => {
+    const checkAndPost = async (list) => {
         if (user) {
             updateLists(list);
             return true;
@@ -60,6 +86,7 @@ const HomeScroll = () => {
 
     return (
         <SourroundingContainer>
+            <ConfPopup />
             <HeaderBar
                 ref={headerRef}
                 postNow={updateLists}

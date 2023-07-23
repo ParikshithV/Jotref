@@ -34,7 +34,7 @@ const HeaderBar = forwardRef((props, ref) => {
             console.log("User logged in");
             setUser(parsedUser);
             setUserInHome(parsedUser);
-            isUserPosting && postNow(null, parsedUser.token);
+            isUserPosting && postNow(null, parsedUser._id);
         } else {
             console.log("User not logged in");
         }
@@ -45,7 +45,7 @@ const HeaderBar = forwardRef((props, ref) => {
             <Text style={styles.headerTxt}>
                 Jotref
             </Text>
-            {!user?.token ?
+            {!user?._id ?
                 <Text
                     onPress={() => setLoginPopup(true)}
                     style={[styles.headerSideTxt, {
@@ -64,8 +64,10 @@ const HeaderBar = forwardRef((props, ref) => {
                 </Text>
             }
 
-            <Pressable disabled
-                onPress={() => navigation.navigate("Drafts")}
+            <Pressable 
+                onPress={() => navigation.navigate("Drafts", {
+                    userObj: user
+                })}
                 style={styles.sideBtn}>
                 <Text
                     style={[styles.headerSideTxt, {
@@ -138,6 +140,5 @@ const styles = StyleSheet.create({
         paddingLeft: 2,
         elevation: 5,
         boxShadow: "0px 0px 5px 0px rgba(0,0,0,0.1)",
-        opacity: 0.5,
     },
 });

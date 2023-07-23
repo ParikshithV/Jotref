@@ -57,15 +57,16 @@ const LoginPopup = (props) => {
         }
     }
 
-    const verifyOtp = () => {
+    const verifyOtp = (autoOtp) => {
         const isOtpValid = /^[0-9]{4}$/;
-        if (!isOtpValid.test(otp)) {
+        const otpToVerify = autoOtp || otp;
+        if (!isOtpValid.test(otpToVerify)) {
             setValidationMsg("Please enter valid OTP.");
             return;
         }
         axios.post(`${env.API_URL}/verifyemailotp`, {
             email: email.toLowerCase(),
-            otp: otp,
+            otp: otpToVerify,
         })
             .then(res => {
                 console.log(res.data);
@@ -74,7 +75,7 @@ const LoginPopup = (props) => {
                     alert("OTP verified successfully.");
                     const userSeshData = {
                         email: email.toLowerCase(),
-                        token: res.data.userId,
+                        _id: res.data.userId,
                     };
                     storeUserData("jotrefUser", userSeshData);
                     setLoginPopup(false);
@@ -99,6 +100,11 @@ const LoginPopup = (props) => {
         } else {
             verifyOtp();
         }
+    }
+
+    const acceptOtp = (otp) => {
+        setOtp(otp);
+        otp.length === 4 && verifyOtp(otp);
     }
 
     return (
@@ -151,7 +157,7 @@ const LoginPopup = (props) => {
                             autoCapitalize="none"
                             autoCorrect={false}
                             autoFocus={true}
-                            onChangeText={setOtp}
+                            onChangeText={acceptOtp}
                             value={otp}
                             onSubmitEditing={_onPopupSubmit}
                         />

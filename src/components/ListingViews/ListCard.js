@@ -15,7 +15,7 @@ const ListCard = ({ item, index, updateLists }) => {
 
     const userEmail = item.createdBy.email || item.userObj.email;
 
-    const editAccess = item.userObj && item.userObj.token === item.createdBy;
+    const editAccess = item.userObj && item.userObj._id === item.createdBy;
 
     const handleDeleteList = () => {
         axios.delete(`${env.API_URL}/deletelist`, {
