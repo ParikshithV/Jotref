@@ -12,17 +12,6 @@ const Stack = createNativeStackNavigator();
 
 function App() {
 
-  useEffect(() => {
-    getUrlParams();
-  }, []);
-
-  const getUrlParams = () => {
-    const urlString = window.location.href;
-    const url = new URL(urlString);
-    const urlParams = new URLSearchParams(url.search);
-    console.log(urlParams);
-  };
-
   return (
     <NavigationContainer
       style={{ alignItems: "center" }}

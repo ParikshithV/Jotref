@@ -7,10 +7,11 @@ import PopupModal from "../common/PopupModal";
 import axios from "axios";
 import env from "react-dotenv";
 
-const ListCard = ({ item, index, updateLists }) => {
+const ListCard = ({ item, index, updateLists, enableShare }) => {
     const [showList, setShowList] = useState(false);
     const [deleteConfModal, setDeleteConfModal] = useState(false);
     const [deleteDoneMsg, setDeleteDoneMsg] = useState(false);
+    const [shareModal, setShareModal] = useState(false);
 
     const userEmail = item.createdBy.email || item.userObj.email;
 
@@ -92,11 +93,45 @@ const ListCard = ({ item, index, updateLists }) => {
                 </Text>
             </PopupModal>
         )
-    }, [deleteDoneMsg])
+    }, [deleteDoneMsg]);
+
+    const ShareListPopup = () => {
+        console.log("share list", env.SHARE_APP_URL);
+        const shareUrl = env.SHARE_APP_URL + "?listId=" + item._id;
+        const shareMsg = `You can share this link to your friends to view this list on Jotref`;
+        return (
+            <PopupModal
+                modalVisible={shareModal}
+                setModalVisible={setShareModal}
+            >
+            <Text style={styles.modalTxt}>
+                {`${shareMsg}`}
+            </Text>
+                <Text style={[styles.modalTxt, {
+                    textDecorationLine: "underline",
+                }]}>
+                    {`${shareUrl}`}
+                </Text>
+                <View style={styles.modalBtnsCont}>
+                    <TouchableOpacity
+                        onPress={() => setShareModal(false)}
+                        style={[styles.modalBtn, {
+                            backgroundColor: hex.buttonBg2,
+                        }]}
+                    >
+                        <Text style={styles.modalBtnTxt}>
+                            Close
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </PopupModal>
+        )
+    }
+
 
     const shareList = async () => {
         console.log("share list", item._id);
-        const shareUrl = env.API_URL + "?listId=" + item._id;
+        const shareUrl = env.SHARE_APP_URL + "?listId=" + item._id;
         const shareMsg = `Check out this list on Jotref`;
         try {
             const result = await navigator.share({
@@ -108,7 +143,7 @@ const ListCard = ({ item, index, updateLists }) => {
                 console.log("shared");
             }
         } catch (error) {
-            alert(error.message);
+            env.SHARE_APP_URL && setShareModal(true);
         }
     };
 
@@ -117,6 +152,7 @@ const ListCard = ({ item, index, updateLists }) => {
             style={styles.listCard}>
             <DeleteConfModal />
             <DeleteConfMsg />
+            <ShareListPopup />
             <View style={styles.headerView}>
                 {editAccess ?
                     <View style={styles.editAccessCont}>
@@ -160,9 +196,11 @@ const ListCard = ({ item, index, updateLists }) => {
                             justifyContent: "flex-end",
                         }]}
                     >
-                        <TouchableOpacity onPress={() => shareList()}>
-                            <ShareIcon height={18} width={18} fill={hex.nineSix} />
-                        </TouchableOpacity>
+                        {enableShare ?
+                            <TouchableOpacity onPress={() => shareList()}>
+                                <ShareIcon height={18} width={18} fill={hex.nineSix} />
+                            </TouchableOpacity> : <View />
+                        }
                         <View style={{ width: 15 }} />
                         <TouchableOpacity onPress={() => setShowList(false)}>
                             <ExpandUp height={25} width={25} fill={hex.nineSix} />

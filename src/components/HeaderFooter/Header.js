@@ -40,6 +40,14 @@ const HeaderBar = forwardRef((props, ref) => {
         }
     }
 
+    const navigateToDrafts = () => {
+        user?._id ?
+            navigation.navigate("Drafts", {
+                userObj: user
+            }) :
+            setLoginPopup(true);
+    }
+
     return (
         <View style={styles.headerBar}>
             <Text style={styles.headerTxt}>
@@ -65,9 +73,7 @@ const HeaderBar = forwardRef((props, ref) => {
             }
 
             <Pressable 
-                onPress={() => navigation.navigate("Drafts", {
-                    userObj: user
-                })}
+                onPress={() => navigateToDrafts()}
                 style={styles.sideBtn}>
                 <Text
                     style={[styles.headerSideTxt, {
