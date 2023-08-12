@@ -94,3 +94,24 @@ export function ConfCheck(props) {
     </Svg>
   )
 }
+
+export function ShareIcon (props) {
+  return(
+    <Svg
+      width="800px"
+      height="800px"
+      viewBox="-1 0 26 26"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <Path
+        d="M333 744c-1.77 0-3.315.925-4.204 2.312l-5.355-3.06c.346-.68.559-1.438.559-2.252 0-.503-.097-.979-.235-1.437l5.571-3.183A4.97 4.97 0 00333 738a5 5 0 005-5 5 5 0 00-5-5 5 5 0 00-5 5c0 .503.097.979.235 1.438l-5.571 3.182A4.973 4.973 0 00319 736a5 5 0 00-5 5 5 5 0 005 5c1.14 0 2.179-.396 3.02-1.038l6.035 3.498c-.02.18-.055.354-.055.54a5 5 0 005 5 5 5 0 005-5 5 5 0 00-5-5"
+        transform="translate(-314 -728)"
+        fill={props.fill || "#1C274C"}
+        stroke="none"
+        strokeWidth={1}
+        fillRule="evenodd"
+      />
+    </Svg>
+  )
+}

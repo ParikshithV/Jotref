@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import HeaderBar from "./components/HeaderFooter/Header";
 import Icon from 'react-native-vector-icons/dist/Feather';
@@ -11,6 +11,18 @@ import MyLists from "./pages/MyLists";
 const Stack = createNativeStackNavigator();
 
 function App() {
+
+  useEffect(() => {
+    getUrlParams();
+  }, []);
+
+  const getUrlParams = () => {
+    const urlString = window.location.href;
+    const url = new URL(urlString);
+    const urlParams = new URLSearchParams(url.search);
+    console.log(urlParams);
+  };
+
   return (
     <NavigationContainer
       style={{ alignItems: "center" }}
