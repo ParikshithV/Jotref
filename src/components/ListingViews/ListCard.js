@@ -13,9 +13,9 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
     const [deleteDoneMsg, setDeleteDoneMsg] = useState(false);
     const [shareModal, setShareModal] = useState(false);
 
-    const userEmail = item.createdBy.email || item.userObj.email;
+    const userEmail = item?.createdBy?.email || item?.userObj?.email;
 
-    const editAccess = item.userObj && item.userObj._id === item.createdBy;
+    const editAccess = item?.userObj && item?.userObj?._id === item?.createdBy;
 
     const handleDeleteList = () => {
         axios.delete(`${env.API_URL}/deletelist`, {
@@ -31,7 +31,7 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
                     setDeleteDoneMsg(false);
                 }, 2000);
                 setTimeout(() => {
-                    updateLists();
+                    updateLists && updateLists();
                 }, 1000);
             })
             .catch(err => {
@@ -104,9 +104,9 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
                 modalVisible={shareModal}
                 setModalVisible={setShareModal}
             >
-            <Text style={styles.modalTxt}>
-                {`${shareMsg}`}
-            </Text>
+                <Text style={styles.modalTxt}>
+                    {`${shareMsg}`}
+                </Text>
                 <Text style={[styles.modalTxt, {
                     textDecorationLine: "underline",
                 }]}>

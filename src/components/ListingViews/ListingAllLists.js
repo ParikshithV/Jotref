@@ -27,17 +27,6 @@ const ListingAllLists = forwardRef((props, ref) => {
     //     }, [userObj])
     // );
 
-    useEffect(() => {
-        getUrlParams();
-    }, []);
-
-    const getUrlParams = () => {
-        const urlString = window.location.href;
-        const url = new URL(urlString);
-        const urlParams = new URLSearchParams(url.search);
-        console.log(urlParams.get('listId'));
-    };
-
     const isFocused = useIsFocused();
 
     useEffect(() => {
