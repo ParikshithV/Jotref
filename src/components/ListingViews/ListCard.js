@@ -17,6 +17,8 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
 
     const editAccess = item?.userObj && item?.userObj?._id === item?.createdBy;
 
+    const shareUrl = env.SHARE_APP_URL + "/sharedlist?listid=" + item._id;
+
     const handleDeleteList = () => {
         axios.delete(`${env.API_URL}/deletelist`, {
             data: {
@@ -97,7 +99,6 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
 
     const ShareListPopup = () => {
         console.log("share list", env.SHARE_APP_URL);
-        const shareUrl = env.SHARE_APP_URL + "?listid=" + item._id;
         const shareMsg = `You can share this link to your friends to view this list on Jotref`;
         return (
             <PopupModal
@@ -131,7 +132,6 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
 
     const shareList = async () => {
         console.log("share list", item._id);
-        const shareUrl = env.SHARE_APP_URL + "?listid=" + item._id;
         const shareMsg = `Check out this list on Jotref`;
         try {
             const result = await navigator.share({
