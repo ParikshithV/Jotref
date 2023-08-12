@@ -1,21 +1,21 @@
 import React, { useCallback, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Modal } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Share, Pressable } from "react-native";
 import { hex } from "../colors";
-import { ConfCheck, DeleteIcon, ExpandDown, ExpandUp } from "../../AllSvg";
-import { Pressable } from "react-native-web";
+import { ConfCheck, DeleteIcon, ExpandDown, ExpandUp, ShareIcon } from "../../AllSvg";
 import moment from "moment";
 import PopupModal from "../common/PopupModal";
 import axios from "axios";
 import env from "react-dotenv";
 
-const ListCard = ({ item, index, updateLists }) => {
+const ListCard = ({ item, index, updateLists, enableShare }) => {
     const [showList, setShowList] = useState(false);
     const [deleteConfModal, setDeleteConfModal] = useState(false);
     const [deleteDoneMsg, setDeleteDoneMsg] = useState(false);
+    const [shareModal, setShareModal] = useState(false);
 
-    const userEmail = item.createdBy.email || item.userObj.email;
+    const userEmail = item?.createdBy?.email || item?.userObj?.email;
 
-    const editAccess = item.userObj && item.userObj._id === item.createdBy;
+    const editAccess = item?.userObj && item?.userObj?._id === item?.createdBy;
 
     const handleDeleteList = () => {
         axios.delete(`${env.API_URL}/deletelist`, {
@@ -31,7 +31,7 @@ const ListCard = ({ item, index, updateLists }) => {
                     setDeleteDoneMsg(false);
                 }, 2000);
                 setTimeout(() => {
-                    updateLists();
+                    updateLists && updateLists();
                 }, 1000);
             })
             .catch(err => {
@@ -93,20 +93,73 @@ const ListCard = ({ item, index, updateLists }) => {
                 </Text>
             </PopupModal>
         )
-    }, [deleteDoneMsg])
+    }, [deleteDoneMsg]);
+
+    const ShareListPopup = () => {
+        console.log("share list", env.SHARE_APP_URL);
+        const shareUrl = env.SHARE_APP_URL + "?listId=" + item._id;
+        const shareMsg = `You can share this link to your friends to view this list on Jotref`;
+        return (
+            <PopupModal
+                modalVisible={shareModal}
+                setModalVisible={setShareModal}
+            >
+                <Text style={styles.modalTxt}>
+                    {`${shareMsg}`}
+                </Text>
+                <Text style={[styles.modalTxt, {
+                    textDecorationLine: "underline",
+                }]}>
+                    {`${shareUrl}`}
+                </Text>
+                <View style={styles.modalBtnsCont}>
+                    <TouchableOpacity
+                        onPress={() => setShareModal(false)}
+                        style={[styles.modalBtn, {
+                            backgroundColor: hex.buttonBg2,
+                        }]}
+                    >
+                        <Text style={styles.modalBtnTxt}>
+                            Close
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </PopupModal>
+        )
+    }
+
+
+    const shareList = async () => {
+        console.log("share list", item._id);
+        const shareUrl = env.SHARE_APP_URL + "?listId=" + item._id;
+        const shareMsg = `Check out this list on Jotref`;
+        try {
+            const result = await navigator.share({
+                title: "Jotref List",
+                text: shareMsg,
+                url: shareUrl,
+            });
+            if (result) {
+                console.log("shared");
+            }
+        } catch (error) {
+            env.SHARE_APP_URL && setShareModal(true);
+        }
+    };
 
     return (
         <View key={index}
             style={styles.listCard}>
             <DeleteConfModal />
             <DeleteConfMsg />
+            <ShareListPopup />
             <View style={styles.headerView}>
                 {editAccess ?
                     <View style={styles.editAccessCont}>
                         <Text style={[styles.userIdTxt, {
                             fontSize: 14, marginBottom: 0,
                         }]}>
-                            Created on: {moment(item.createdOn).format("MMM Do YYYY hh:mm a")}
+                            {moment(item.createdOn).format("MMM D, YYYY H:mm")}
                         </Text>
                         <Pressable
                             onPress={() => setDeleteConfModal(true)}
@@ -138,26 +191,37 @@ const ListCard = ({ item, index, updateLists }) => {
                             </View>
                         )
                     })}
-                    <TouchableOpacity
-                        onPress={() => setShowList(false)}
+                    <View
                         style={[styles.hideShowBtnCont, {
                             justifyContent: "flex-end",
                         }]}
                     >
-                        <ExpandUp height={18} width={25} fill={hex.nineSix} />
-                    </TouchableOpacity>
+                        {enableShare ?
+                            <TouchableOpacity onPress={() => shareList()}>
+                                <ShareIcon height={18} width={18} fill={hex.nineSix} />
+                            </TouchableOpacity> : <View />
+                        }
+                        <View style={{ width: 15 }} />
+                        <TouchableOpacity onPress={() => setShowList(false)}>
+                            <ExpandUp height={25} width={25} fill={hex.nineSix} />
+                        </TouchableOpacity>
+                    </View>
                 </View> :
-                <TouchableOpacity
+                <View
                     style={[styles.pointsCont, styles.hideShowBtnCont, {
                         paddingBottom: 5,
                     }]}
-                    onPress={() => setShowList(true)}
                 >
-                    <Text style={styles.showHideBtnTxt}>
-                        Show list
-                    </Text>
-                    <ExpandDown height={15} width={15} fill={hex.nineSix} />
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                        onPress={() => setShowList(true)}>
+                        <Text
+                            style={styles.showHideBtnTxt}>
+                            Show list
+                        </Text>
+                        <ExpandDown height={15} width={15} fill={hex.nineSix} />
+                    </TouchableOpacity>
+                </View>
             }
         </View>
     )

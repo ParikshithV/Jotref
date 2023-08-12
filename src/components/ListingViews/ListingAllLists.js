@@ -90,7 +90,7 @@ const ListingAllLists = forwardRef((props, ref) => {
                     padding: 15
                 }}
                 renderItem={({ item, index }) => (
-                    <ListCard
+                    <ListCard enableShare
                         item={{ ...item, userObj: userObj }}
                         index={index}
                         updateLists={() => getAllPosts(userObj?._id)}
