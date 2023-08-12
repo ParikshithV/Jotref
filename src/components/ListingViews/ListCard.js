@@ -94,16 +94,21 @@ const ListCard = ({ item, index, updateLists }) => {
         )
     }, [deleteDoneMsg])
 
-    const shareList = () => {
+    const shareList = async () => {
         console.log("share list", item._id);
-        const canShare = navigator.canShare({
-            title: "Jotref List",
-            text: "Check out this list on Jotref",
-            url: env.API_URL + "?listId=" + item._id,
-        });
-        if (!canShare) {
-            alert("Cannot share this list");
-            return;
+        const shareUrl = env.API_URL + "?listId=" + item._id;
+        const shareMsg = `Check out this list on Jotref`;
+        try {
+            const result = await navigator.share({
+                title: "Jotref List",
+                text: shareMsg,
+                url: shareUrl,
+            });
+            if (result) {
+                console.log("shared");
+            }
+        } catch (error) {
+            alert(error.message);
         }
     };
 
