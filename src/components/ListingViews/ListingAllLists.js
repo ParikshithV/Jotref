@@ -99,7 +99,7 @@ const ListingAllLists = forwardRef((props, ref) => {
                 ListFooterComponent={<Placeholder />}
                 ListHeaderComponent={ListHeader || null}
                 showsHorizontalScrollIndicator={false}
-                onEndReached={() => canLoadMore.current && getAllPosts(userObj?._id, true)}
+                onEndReached={() => canLoadMore.current && !isLoading && getAllPosts(userObj?._id, true)}
                 onEndReachedThreshold={1}
             />
         </View>
