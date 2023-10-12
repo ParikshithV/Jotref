@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Share, Pressable } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Pressable, Linking } from "react-native";
 import { hex } from "../colors";
 import { ConfCheck, DeleteIcon, ExpandDown, ExpandUp, ShareIcon } from "../../AllSvg";
 import moment from "moment";
@@ -17,7 +17,7 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
 
     const editAccess = item?.userObj && item?.userObj?._id === item?.createdBy;
 
-    const shareUrl = env.SHARE_APP_URL + "/sharedlist?listid=" + item._id;
+    const shareUrl = "https://jotref.pages.dev/sharelist?listid=" + item._id;
 
     const handleDeleteList = () => {
         axios.delete(`${env.API_URL}/deletelist`, {
@@ -98,7 +98,7 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
     }, [deleteDoneMsg]);
 
     const ShareListPopup = () => {
-        console.log("share list", env.SHARE_APP_URL);
+        console.log("share list", env.REACT_APP_SHARE_APP_URL);
         const shareMsg = `You can share this link to your friends to view this list on Jotref`;
         return (
             <PopupModal
@@ -131,7 +131,7 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
 
 
     const shareList = async () => {
-        console.log("share list", item._id);
+        console.log("share list", shareUrl);
         const shareMsg = `Check out this list on Jotref`;
         try {
             const result = await navigator.share({
@@ -143,9 +143,37 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
                 console.log("shared");
             }
         } catch (error) {
-            env.SHARE_APP_URL && setShareModal(true);
+            env.REACT_APP_SHARE_APP_URL && setShareModal(true);
         }
     };
+
+    const openIfLink = async (pointTxt) => {
+        const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
+        const openUrl = await Linking.canOpenURL(urlFromText);
+        openUrl &&
+            await Linking.openURL(urlFromText);
+    }
+
+    const parseLinks = (pointTxt) => {
+        const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
+        let openUrl = Linking.canOpenURL(urlFromText);
+        if (openUrl) {
+            const textWoLink = String(pointTxt).replace(urlFromText, '');
+            return (
+                <Text>
+                    {textWoLink}<Text
+                        style={{
+                            textDecorationLine: 'underline', color: hex.blue
+                        }}
+                    >
+                        {urlFromText}
+                    </Text>
+                </Text>
+            )
+        } else {
+            return pointTxt
+        }
+    }
 
     return (
         <View key={index}
@@ -182,13 +210,16 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
                 <View style={styles.pointsCont}>
                     {item.points.map((point, index) => {
                         return (
-                            <View key={index}
+                            <Pressable key={index}
+                                onPress={() => openIfLink(point)}
                                 style={[styles.listPointRow, {
                                     borderTopWidth: index === 0 ? 0 : 1,
-                                }]}>
+                                }]}
+                            >
                                 <Text style={styles.pointIndexNo}>{index + 1}.</Text>
-                                <Text style={styles.listPoint}>{point}</Text>
-                            </View>
+                                <Text style={styles.listPoint}>{parseLinks(point)}</Text>
+                                {/* <Text style={styles.listPoint}>{point}</Text> */}
+                            </Pressable>
                         )
                     })}
                     <View

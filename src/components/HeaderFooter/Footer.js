@@ -5,7 +5,7 @@ import { hex } from "../colors";
 const Footer = () => {
     return (
         <Text style={styles.devContTxt}>
-            jotref@mailo.com
+            jotref@parikshithv.in
         </Text>
     )
 }
