@@ -148,29 +148,37 @@ const ListCard = ({ item, index, updateLists, enableShare }) => {
     };
 
     const openIfLink = async (pointTxt) => {
-        const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
-        const openUrl = await Linking.canOpenURL(urlFromText);
-        openUrl &&
-            await Linking.openURL(urlFromText);
+        try {
+            const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
+            const openUrl = await Linking.canOpenURL(urlFromText);
+            openUrl &&
+                await Linking.openURL(urlFromText);
+        } catch (error) {
+            console.log('Not a link to open')
+        }
     }
 
     const parseLinks = (pointTxt) => {
-        const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
-        let openUrl = Linking.canOpenURL(urlFromText);
-        if (openUrl) {
-            const textWoLink = String(pointTxt).replace(urlFromText, '');
-            return (
-                <Text>
-                    {textWoLink}<Text
-                        style={{
-                            textDecorationLine: 'underline', color: hex.blue
-                        }}
-                    >
-                        {urlFromText}
+        try {
+            const urlFromText = String(pointTxt).match(/https?:\/\/[^\s]+/)[0];
+            let openUrl = Linking.canOpenURL(urlFromText);
+            if (openUrl) {
+                const textWoLink = String(pointTxt).replace(urlFromText, '');
+                return (
+                    <Text>
+                        {textWoLink}<Text
+                            style={{
+                                textDecorationLine: 'underline', color: hex.blue
+                            }}
+                        >
+                            {urlFromText}
+                        </Text>
                     </Text>
-                </Text>
-            )
-        } else {
+                )
+            } else {
+                return pointTxt
+            }
+        } catch (error) {
             return pointTxt
         }
     }
