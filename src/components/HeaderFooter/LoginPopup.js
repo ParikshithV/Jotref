@@ -15,7 +15,7 @@ const LoginPopup = (props) => {
     const [otpSent, setOtpSent] = useState(false);
     const [validationMsg, setValidationMsg] = useState("");
     const [infoTxt, setInfoTxt] = useState("");
-    const[isWorking, setIsWorking] = useState(false);
+    const [isWorking, setIsWorking] = useState(false);
 
     useEffect(() => {
         setValidationMsg("");
@@ -148,6 +148,12 @@ const LoginPopup = (props) => {
                                     Edit
                                 </Text>
                             </Text>
+                        </Text>
+                        <Text style={[styles.popupTxt, {
+                            fontWeight: 400, fontSize: 12,
+                            color: hex.sixtyNine, marginBottom: 0
+                        }]}>
+                            Don't forget to check your spam folder!
                         </Text>
                         <TextInput
                             placeholder="Enter OTP"
