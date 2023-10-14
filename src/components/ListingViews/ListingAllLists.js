@@ -13,7 +13,7 @@ const ListingAllLists = forwardRef((props, ref) => {
     const [allLists, setAllLists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const canLoadMore = useRef(true);
+    const canLoadMore = useRef(false);
 
     useImperativeHandle(ref, () => ({
         updateLists: () => {
@@ -36,6 +36,7 @@ const ListingAllLists = forwardRef((props, ref) => {
     }, [userObj, isFocused]);
 
     const getAllPosts = (loadMore, refresh) => {
+        canLoadMore.current = false;
         refresh && setIsLoading(2);
         const userId = userObj?._id;
         console.log('draftedLists', draftedLists)
@@ -54,11 +55,13 @@ const ListingAllLists = forwardRef((props, ref) => {
                 const listRes = res.data;
                 const listArr = loadMore ? [...allLists, ...listRes] : listRes;
                 setAllLists(listArr);
-                setIsLoading(false);
-                canLoadMore.current = listRes.length > 4;
+                canLoadMore.current = listRes.length === 5;
             })
             .catch(err => {
                 console.log(err);
+                canLoadMore.current = false;
+            })
+            .finally(() => {
                 setIsLoading(false);
             })
     }
@@ -99,8 +102,8 @@ const ListingAllLists = forwardRef((props, ref) => {
                 ListFooterComponent={<Placeholder />}
                 ListHeaderComponent={ListHeader || null}
                 showsHorizontalScrollIndicator={false}
-                onEndReached={() => canLoadMore.current && !isLoading && getAllPosts(userObj?._id, true)}
-                onEndReachedThreshold={1}
+                onEndReached={() => canLoadMore.current && getAllPosts(true)}
+            // onEndReachedThreshold={0.5}
             />
         </View>
     );
